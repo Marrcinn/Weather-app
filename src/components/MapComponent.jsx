@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     setMapBounds,
@@ -27,7 +27,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 const MapComponent = () => {
     const dispatch = useDispatch();
     const { topCities, loading, userLocation, error } = useSelector((state) => state.weather);
-    const [mapCenter, setMapCenter] = useState([52.2, 21]);
+    const [mapCenter] = useState([52.2, 21]);
 
     function MapEvents() {
         const map = useMap();

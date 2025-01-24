@@ -74,7 +74,7 @@ const api = {
     },
     // fetchUserLocation: fetch the user's location using the browser's geolocation API. Returns a promise with the location
 	fetchUserLocation() {
-        // Since the this is only dev enviroment and is not server over https, the geolocation API will not work
+        // Since this is only dev enviroment and is not server over https, the geolocation API will not work
         // To show how it should work, we will use a default (Warsaw) location, unless the user has denied the permission
 		const default_warsaw = {
 			lat: 52.22977,
