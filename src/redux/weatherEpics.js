@@ -1,5 +1,5 @@
 import {ofType} from 'redux-observable';
-import {from, of, interval, forkJoin, merge} from 'rxjs';
+import {from, of, interval, merge} from 'rxjs';
 import {catchError, debounceTime, map, switchMap, startWith,} from 'rxjs/operators';
 import {
     setError,
@@ -7,11 +7,8 @@ import {
     setCities,
     setTopCitiesWithFilters,
     setUserLocation,
-    setFilterName,
     setFilterPopulation,
-    setMapBounds, setCitiesWithWeather,
-    fetchUserLocation,
-    deleteUserLocation
+    setCitiesWithWeather,
 } from './weatherSlice';
 import api from '../services/api';
 
@@ -19,7 +16,6 @@ const SET_MAP_BOUNDS = 'weather/setMapBounds'; // Use the action type string
 const SET_TOP_CITIES_WITH_FILTER = 'weather/setTopCitiesWithFilters';
 const SET_CITIES = 'weather/setCities';
 const SET_FILTER_NAME = 'weather/setFilterName';
-const SET_USER_LOCATION = 'weather/setUserLocation';
 const FETCH_USER_LOCATION = 'weather/fetchUserLocation';
 const SET_FILTER_POPULATION = 'weather/setFilterPopulation';
 
@@ -45,26 +41,17 @@ export const updateTopCitiesAndFiltersEpic = (action$, state$) => {
         ofType(SET_CITIES, SET_FILTER_NAME),
         debounceTime(1000),
         switchMap(() => {
-            const {cities, filterName, mapBounds} = state$.value.weather;
+            const {cities, filterName} = state$.value.weather;
             if (!cities || cities.length === 0) {
                 return of(setLoading(false));
             }
-            let topCities = cities;
+            let nameFilteredCities = cities;
             if (filterName) {
-                topCities = topCities.filter(city => city.name.toLowerCase().startsWith(filterName.toLowerCase()));
+                nameFilteredCities = nameFilteredCities.filter(city => city.name.toLowerCase().startsWith(filterName.toLowerCase()));
             }
-            if (mapBounds && mapBounds.southwest && mapBounds.northeast) {
-                topCities = topCities.filter(city => city.lat >= mapBounds.southwest.lat &&
-                    city.lat <= mapBounds.northeast.lat &&
-                    city.lon >= mapBounds.southwest.lng &&
-                    city.lon <= mapBounds.northeast.lng);
-            }
-            // Sort and slice
-            topCities = topCities.sort((a, b) => b.population - a.population).slice(0, 20);
-            console.log("Top cities", topCities);
             // Update filterPopulation with the min and max population of the top cities
-            const minPopulation = topCities.length > 0 ? Math.min(...topCities.map(city => city.population)) : 0;
-            const maxPopulation = topCities.length > 0 ? Math.max(...topCities.map(city => city.population)) : 0;
+            const minPopulation = nameFilteredCities.length > 0 ? Math.min(...nameFilteredCities.map(city => city.population)) : 0;
+            const maxPopulation = nameFilteredCities.length > 0 ? Math.max(...nameFilteredCities.map(city => city.population)) : 0;
             const filterPopulation = {min: minPopulation, max: maxPopulation};
             return merge(of(setFilterPopulation(filterPopulation)));
         })
@@ -133,7 +120,6 @@ export const updateWeatherEpic = (action$, state$) => {
     );
 };
 
-// TODO: Refresh each hour by removing the weather from the cities
 export const refreshWeatherEpic = (action$, state$) => {
     return interval(60*60 * 1000).pipe(
         startWith(0),

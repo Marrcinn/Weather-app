@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFilterName, setFilterPopulation } from '../redux/weatherSlice';
 import MultiRangeSlider from 'multi-range-slider-react';
@@ -17,35 +17,18 @@ const Input = styled.input`
   box-sizing: border-box;
 `;
 
-const SliderContainer = styled.div`
-    display: flex;
-    align-items: center;
-`
-
-const Label = styled.label`
-    margin-right: 10px;
-`
-
-const RangeInput = styled.input`
-    width: 100%;
-`
 
 const FilterPanel = () => {
   const dispatch = useDispatch();
   const availablePopulationRange = useSelector((state) => state.weather.availablePopulationRange);
   const [name, setName] = useState('');
-  const [populationRange, setPopulationRange] = useState({ min: 0, max: 10000000 });
+  const [populationRange] = useState({ min: 0, max: 10000000 });
   const [sliderValues, setSliderValues] = useState({min: 0, max: 10000000})
 
   const handleNameChange = (event) => {
     setName(event.target.value);
   };
 
-  // const handlePopulationChange = useCallback((event) => {
-  //   const values = event.target.value.split(',').map(Number)
-  //   setSliderValues({min: values[0], max: values[1]})
-  //   setPopulationRange({ min: values[0], max: values[1] });
-  // }, []);
 
   const handleSliderInput = ((e) => {
     console.log(e);

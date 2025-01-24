@@ -66,11 +66,11 @@ const weatherSlice = createSlice({
             console.log("Set filter population", action.payload);
             state.filterPopulation = action.payload;
         },
-        setAvailablePopulationRange: (state, action) => {
-            console.log("Set available population range");
-            state.availablePopulationRange = action.payload;
-        },
-        fetchUserLocation: (state, action) => {
+        //setAvailablePopulationRange: (state, action) => {
+        //    console.log("Set available population range");
+        //    state.availablePopulationRange = action.payload;
+        //},
+        fetchUserLocation: (state) => {
             console.log("Fetch user location");
             state.loading = true;
             state.error = null;
@@ -85,19 +85,19 @@ const weatherSlice = createSlice({
             console.log("Delete user location");
             state.userLocation = null;
         },
-        toggleTheme: (state) => {
-            console.log("Toggle theme");
-            state.theme = state.theme === 'light' ? 'dark' : 'light';
-        },
+        //toggleTheme: (state) => {
+        //    console.log("Toggle theme");
+        //    state.theme = state.theme === 'light' ? 'dark' : 'light';
+        //},
         setError: (state, action) => {
             console.log("Set error");
             state.loading = false;
             state.error = action.payload;
         },
-        clearError: (state) => {
-            console.log("clear Error");
-            state.error = null;
-        }
+        //clearError: (state) => {
+        //    console.log("clear Error");
+        //    state.error = null;
+        //}
     },
 });
 
@@ -109,13 +109,10 @@ export const {
     setFilterName,
     setFilterPopulation,
     setUserLocation,
-    toggleTheme,
     setError,
-    clearError,
     setCitiesWithWeather,
     fetchUserLocation,
     deleteUserLocation,
-    setAvailablePopulationRange
 } = weatherSlice.actions;
 
 export default weatherSlice.reducer;
