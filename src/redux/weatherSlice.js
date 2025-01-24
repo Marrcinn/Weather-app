@@ -6,7 +6,8 @@ const initialState = {
     loading: false,
     mapBounds: null,
     filterName: '',
-    filterPopulation: {min: 0, max: null}, // Initialize max to null
+    filterPopulation: {min: 0, max: 10000000}, // Initialize max to null
+    availablePopulationRange: {min: 0, max: 10000000}, // Initialize max to null
     userLocation: null,
     theme: 'light', // Default theme
     error: null, // To store any errors during API calls
@@ -16,7 +17,6 @@ const weatherSlice = createSlice({
     name: 'weather',
     initialState,
     reducers: {
-
         setCities: (state, action) => {
             console.log("Set cities");
             for (let city of action.payload) {
@@ -26,6 +26,9 @@ const weatherSlice = createSlice({
                 }
             }
             state.error = null;
+            const min_population = Math.min(...state.cities.map(city => city.population));
+            const max_population = Math.max(...state.cities.map(city => city.population));
+            state.availablePopulationRange = {min: min_population, max: max_population};
         },
         // Set the top cities with filters
         setTopCitiesWithFilters: (state, action) => {
@@ -60,8 +63,12 @@ const weatherSlice = createSlice({
             state.filterName = action.payload;
         },
         setFilterPopulation: (state, action) => {
-            console.log("Set filter population");
+            console.log("Set filter population", action.payload);
             state.filterPopulation = action.payload;
+        },
+        setAvailablePopulationRange: (state, action) => {
+            console.log("Set available population range");
+            state.availablePopulationRange = action.payload;
         },
         fetchUserLocation: (state, action) => {
             console.log("Fetch user location");
@@ -107,7 +114,8 @@ export const {
     clearError,
     setCitiesWithWeather,
     fetchUserLocation,
-    deleteUserLocation
+    deleteUserLocation,
+    setAvailablePopulationRange
 } = weatherSlice.actions;
 
 export default weatherSlice.reducer;

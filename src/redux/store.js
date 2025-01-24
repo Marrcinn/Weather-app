@@ -7,6 +7,7 @@ import {
     updateTopCitiesAndFiltersEpic,
     updateWeatherEpic,
     fetchUserLocationEpic,
+    updateFilteredCitiesEpic,
 }
     from './weatherEpics'; // Import your epics
 
@@ -16,6 +17,7 @@ const rootEpic = combineEpics(
     updateWeatherEpic,
     refreshWeatherEpic,
     fetchUserLocationEpic,
+    updateFilteredCitiesEpic
 );
 
 const epicMiddleware = createEpicMiddleware();

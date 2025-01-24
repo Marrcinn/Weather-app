@@ -21,6 +21,7 @@ const SET_CITIES = 'weather/setCities';
 const SET_FILTER_NAME = 'weather/setFilterName';
 const SET_USER_LOCATION = 'weather/setUserLocation';
 const FETCH_USER_LOCATION = 'weather/fetchUserLocation';
+const SET_FILTER_POPULATION = 'weather/setFilterPopulation';
 
 export const fetchCitiesEpic = (action$, state$) => {
     return action$.pipe(
@@ -65,11 +66,42 @@ export const updateTopCitiesAndFiltersEpic = (action$, state$) => {
             const minPopulation = topCities.length > 0 ? Math.min(...topCities.map(city => city.population)) : 0;
             const maxPopulation = topCities.length > 0 ? Math.max(...topCities.map(city => city.population)) : 0;
             const filterPopulation = {min: minPopulation, max: maxPopulation};
-            return merge(of(setFilterPopulation(filterPopulation)), of(setTopCitiesWithFilters(topCities)));
+            return merge(of(setFilterPopulation(filterPopulation)));
         })
     );
 
 };
+
+export const updateFilteredCitiesEpic = (action$, state$) => {
+    return action$.pipe(
+        ofType(SET_FILTER_POPULATION),
+        debounceTime(1000),
+        switchMap(() => {
+            const {cities, filterPopulation, mapBounds, filterName} = state$.value.weather;
+            if (!cities || cities.length === 0) {
+                return of(setLoading(false));
+            }
+            let topCities = cities;
+            if (filterName) {
+                topCities = topCities.filter(city => city.name.toLowerCase().startsWith(filterName.toLowerCase()));
+            }
+            if (mapBounds && mapBounds.southwest && mapBounds.northeast) {
+                topCities = topCities.filter(city => city.lat >= mapBounds.southwest.lat &&
+                    city.lat <= mapBounds.northeast.lat &&
+                    city.lon >= mapBounds.southwest.lng &&
+                    city.lon <= mapBounds.northeast.lng);
+            }
+            // Filter by population
+            console.log("Filtering by population", filterPopulation);
+            topCities = topCities.filter(city => city.population >= filterPopulation.min && city.population <= filterPopulation.max);
+            // Sort and slice
+            topCities = topCities.sort((a, b) => b.population - a.population).slice(0, 20);
+            console.log("Top cities with filters", topCities);
+
+            return of(setTopCitiesWithFilters(topCities));
+        })
+    );
+}
 
 // Get weather for the top cities. If the city already has weather, skip it.
 export const updateWeatherEpic = (action$, state$) => {
@@ -115,8 +147,6 @@ export const refreshWeatherEpic = (action$, state$) => {
     );
 }
 
-
-const WARSAW_COORDINATES = {lat: 20.2297, lng: 21.0122}; // Warsaw coordinates
 
 
 export const fetchUserLocationEpic = (action$) => {
