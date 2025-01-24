@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFilterName, setFilterPopulation } from '../redux/weatherSlice';
+import {setFilterName, setFilterPopulation, setLoading} from '../redux/weatherSlice';
 import MultiRangeSlider from 'multi-range-slider-react';
 import styled from 'styled-components';
 
@@ -32,6 +32,7 @@ const FilterPanel = () => {
 
   const handleSliderInput = ((e) => {
     console.log(e);
+    dispatch(setLoading(true));
     dispatch(setFilterPopulation({min: e.minValue, max: e.maxValue}));
   });
 
@@ -43,13 +44,6 @@ const FilterPanel = () => {
     return () => clearTimeout(timeoutId);
   }, [name, dispatch]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-        dispatch(setFilterPopulation(populationRange));
-    }, 200);
-
-    return () => clearTimeout(timeoutId);
-}, [populationRange, dispatch]);
 
   useEffect(() => {
     console.log("Setting available population range", availablePopulationRange);

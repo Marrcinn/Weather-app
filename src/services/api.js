@@ -1,12 +1,10 @@
 import axios from 'axios'
-import process from 'process'
 
 const OVERPASS_API_URL = "https://overpass.private.coffee/api/interpreter"
 const WEATHER_API_BASE_URL = "http://api.weatherapi.com/v1"
 
 
-// TODO: Import api key from enviroment
-const WEATHER_API_KEY = "2fb1e376a10142b5b6f133349252301";
+const WEATHER_API_KEY = import.meta.env.VITE_API_KEY;
 
 
 const api = {
@@ -14,7 +12,8 @@ const api = {
     // bounds: object with southwest and northeast objects with lat and lng properties
     // nameFilter: a beggining of the city name
     // populationFilter: object with min and max properties
-    fetchCities(bounds, nameFilter = '', populationFilter = null) {
+    // returns a promise with the cities
+    fetchCities(bounds) {
         if (!bounds || !bounds.southwest || !bounds.northeast) {
             return Promise.reject(new Error('Invalid bounds'))
         }
@@ -49,6 +48,7 @@ const api = {
                 throw error;
             });
     },
+    // For a given city (object with .lat and .lon properties), fetch the current weather
     fetchWeather(city) {
         if (!city || !city.lat || !city.lon) {
             return Promise.reject(new Error('Invalid city data'));
@@ -72,7 +72,10 @@ const api = {
             });
 
     },
+    // fetchUserLocation: fetch the user's location using the browser's geolocation API. Returns a promise with the location
 	fetchUserLocation() {
+        // Since the this is only dev enviroment and is not server over https, the geolocation API will not work
+        // To show how it should work, we will use a default (Warsaw) location, unless the user has denied the permission
 		const default_warsaw = {
 			lat: 52.22977,
 			lng: 21.01178,
@@ -89,6 +92,10 @@ const api = {
 					});
 				},
 				error => {
+                    if (error.code === error.PERMISSION_DENIED) {
+                        reject('User denied geolocation permission');
+                    }
+                    console.error('Error getting user location', error);
 					resolve(default_warsaw);
 				}
 			);
