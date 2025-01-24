@@ -1,8 +1,21 @@
-# React + Vite
+Weather app
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Author: Marcin Zaręba
 
-Currently, two official plugins are available:
+## Description
+This is a simple weather app that uses weatherAPI for weather data and overpass (with react-leaflet) for map data. The app is written in React.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## How to run
+For development: npm run dev
+
+## Code structure
+in src/redux are files related to redux store: epics, slices and store itself.
+
+in src/components are components that are used in the app. 
+
+There is a custom styled component: src/components/CenterToLocationButton.jsx
+
+in src/services are files related to fetching data from APIs and getting user location.
+
+in src/main.jsx is the main file that renders the app, while in src/App.jsx is the main component of the app.
+

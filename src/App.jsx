@@ -15,7 +15,6 @@ function App() {
             <FilterPanel/>
             <CenterToLocationButton />
             {error && <div className="error">{error}</div>}
-
         </>
     )
 }
