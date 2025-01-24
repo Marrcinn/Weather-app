@@ -1,15 +1,26 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
+    // Cities are all the cities fetched from the API so far. City has attributes id, name, lat, lon, population, weather.
+    // weather starts out as null and is updated when the weather is fetched.
     cities: [],
+    // Top cities are top 20 cities based on the filters.
     topCities: [],
+    // Loading is a boolean to indicate if the app is currently loading data.
     loading: false,
+    // Map bounds is an object with southwest and northeast properties, each with lat and lng properties.
     mapBounds: null,
+    // Filter name is a string to filter cities by name (they must start with the filter name (case insensitive)).
     filterName: '',
+    // Filter population is an object with min and max properties to filter cities by
     filterPopulation: {min: 0, max: 10000000}, // Initialize max to null
+    // availablePopulationRange is the range the slider should be from/to
     availablePopulationRange: {min: 0, max: 10000000}, // Initialize max to null
+    // User location is an object with lat and lng properties to center the map on the user's location.
+    // The map will center to user's location unless it is null
     userLocation: null,
     theme: 'light', // Default theme
+    // An error object to store any errors during API calls
     error: null, // To store any errors during API calls
 };
 
@@ -25,7 +36,6 @@ const weatherSlice = createSlice({
                     state.cities.push(city);
                 }
             }
-            state.error = null;
             const min_population = Math.min(...state.cities.map(city => city.population));
             const max_population = Math.max(...state.cities.map(city => city.population));
             state.availablePopulationRange = {min: min_population, max: max_population};
@@ -34,7 +44,6 @@ const weatherSlice = createSlice({
         setTopCitiesWithFilters: (state, action) => {
             console.log("Set top cities with filters");
             state.topCities = action.payload;
-            state.error = null;
         },
         // Set the Top cities with weather.
         setCitiesWithWeather: (state, action) => {
@@ -47,11 +56,9 @@ const weatherSlice = createSlice({
             }
             state.topCities = action.payload;
             state.loading = false;
-            state.error = null;
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
-            state.error = null;
         },
         setMapBounds: (state, action) => {
             state.userLocation = null;
@@ -73,31 +80,30 @@ const weatherSlice = createSlice({
         fetchUserLocation: (state) => {
             console.log("Fetch user location");
             state.loading = true;
-            state.error = null;
         },
         setUserLocation: (state, action) => {
             console.log("Set user location");
             console.log(action.payload);
             state.userLocation = action.payload;
-            state.error = null;
         },
         deleteUserLocation: (state) => {
             console.log("Delete user location");
             state.userLocation = null;
+            state.loading = false;
         },
         //toggleTheme: (state) => {
         //    console.log("Toggle theme");
         //    state.theme = state.theme === 'light' ? 'dark' : 'light';
         //},
         setError: (state, action) => {
-            console.log("Set error");
+            console.log("Set error", action.payload);
             state.loading = false;
             state.error = action.payload;
         },
-        //clearError: (state) => {
-        //    console.log("clear Error");
-        //    state.error = null;
-        //}
+        clearError: (state) => {
+           console.log("clear Error");
+           state.error = null;
+        }
     },
 });
 
@@ -113,6 +119,7 @@ export const {
     setCitiesWithWeather,
     fetchUserLocation,
     deleteUserLocation,
+    clearError,
 } = weatherSlice.actions;
 
 export default weatherSlice.reducer;

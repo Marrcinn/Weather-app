@@ -121,7 +121,7 @@ export const updateWeatherEpic = (action$, state$) => {
 };
 
 export const refreshWeatherEpic = (action$, state$) => {
-    return interval(60*60 * 1000).pipe(
+    return interval(60 * 60 * 1000).pipe(
         startWith(0),
         map(() => {
             const {cities} = state$.value.weather;
@@ -134,20 +134,34 @@ export const refreshWeatherEpic = (action$, state$) => {
 }
 
 
-
-export const fetchUserLocationEpic = (action$) => {
-    // Only once, when the app starts
+export const fetchUserLocationEpic = (action$, state$) => {
     return action$
         .pipe(
-        ofType(FETCH_USER_LOCATION),
-        startWith(0),
-        switchMap(() => {
-            return from(api.fetchUserLocation()).pipe(
-                map((location) => setUserLocation(location)),
-                catchError(error =>{console.log(error); return of(setError(error.message))})
-            );
-        })
-    );
+            ofType(FETCH_USER_LOCATION),
+            startWith(0),
+            switchMap(() => {
+                const {mapBounds} = state$.value.weather;
+                let user_location =null
+                if (!mapBounds || !mapBounds.southwest || !mapBounds.northeast) {
+                    user_location = {lat: 52.2, lng: 21};
+                }
+                else{
+                    user_location = {
+                        lat: (mapBounds.southwest.lat + mapBounds.northeast.lat) / 2,
+                        lng: (mapBounds.southwest.lng+ mapBounds.northeast.lng) / 2};
+                }
+                return from(api.fetchUserLocation()).pipe(
+                    map((location) => setUserLocation(location)),
+                    catchError(error => {
+                        console.log(error);
+                        // Return an action to set the error state and setUserLocation to current location
+                        return of(setError(error), setUserLocation(user_location));
+
+
+                    })
+                );
+            })
+        );
 };
 
 

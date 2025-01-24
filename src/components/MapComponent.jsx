@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { useDispatch, useSelector } from 'react-redux';
-import {setMapBounds, setLoading, fetchUserLocation, deleteUserLocation} from '../redux/weatherSlice';
+import {
+    setMapBounds,
+    setLoading,
+    fetchUserLocation,
+    deleteUserLocation,
+    clearError
+} from '../redux/weatherSlice';
 import WeatherMarker from './WeatherMarker';
 import LoadingSpinner from './LoadingSpinner';
 import 'leaflet/dist/leaflet.css';
@@ -63,8 +69,8 @@ const MapComponent = () => {
     }, [dispatch]);
 
     return (
-        <div style={{ height: '500px', width: '100%' }}> {/* Set map dimensions */}
-            <MapContainer center={mapCenter} zoom={10} style={{ height: '100%', width: '100%' }}>
+        <div style={{ height: '550px', width: '100%' }}> {/* Set map dimensions */}
+            <MapContainer center={mapCenter} zoom={10} style={{ height: '90%', width: '100%' }}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -73,14 +79,13 @@ const MapComponent = () => {
                 {topCities.map((city) => (
                     <WeatherMarker key={city.id} city={city} />
                 ))}
-                {userLocation && (
-                    <Marker position={[userLocation.lat, userLocation.lng]}>
-                        <Popup>You are here</Popup>
-                    </Marker>
-                )}
             </MapContainer>
             {loading && <LoadingSpinner />}
-            {error && <p style={{color: 'red'}}>{error}</p>}
+            {error &&
+            <div style={{ display:'flex', flexDirection:"row"  }}>
+                <p style={{color: 'red'}}>{error}</p> <button onClick={() => dispatch(clearError())}>Clear error</button>
+            </div>
+            }
         </div>
     );
 };

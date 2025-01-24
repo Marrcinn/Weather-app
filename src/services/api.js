@@ -92,8 +92,10 @@ const api = {
 					});
 				},
 				error => {
-                    if (error.code === error.PERMISSION_DENIED) {
+                    console.log(error.code);
+                    if (error.code == 1) {
                         reject('User denied geolocation permission');
+                        return;
                     }
                     console.error('Error getting user location', error);
 					resolve(default_warsaw);

@@ -34,6 +34,7 @@ const FilterPanel = () => {
     console.log(e);
     dispatch(setLoading(true));
     dispatch(setFilterPopulation({min: e.minValue, max: e.maxValue}));
+    return;
   });
 
   useEffect(() => {
@@ -71,7 +72,7 @@ const FilterPanel = () => {
           minValue={populationRange.min}
           maxValue={populationRange.max}
           step={5000}
-          onInput={(e)=>handleSliderInput(e)}
+          onChange={(e)=>handleSliderInput(e)}
         />
     </FilterContainer>
   );
