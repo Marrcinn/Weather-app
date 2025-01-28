@@ -73,10 +73,6 @@ const weatherSlice = createSlice({
             console.log("Set filter population", action.payload);
             state.filterPopulation = action.payload;
         },
-        //setAvailablePopulationRange: (state, action) => {
-        //    console.log("Set available population range");
-        //    state.availablePopulationRange = action.payload;
-        //},
         fetchUserLocation: (state) => {
             console.log("Fetch user location");
             state.loading = true;
@@ -91,10 +87,7 @@ const weatherSlice = createSlice({
             state.userLocation = null;
             state.loading = false;
         },
-        //toggleTheme: (state) => {
-        //    console.log("Toggle theme");
-        //    state.theme = state.theme === 'light' ? 'dark' : 'light';
-        //},
+
         setError: (state, action) => {
             console.log("Set error", action.payload);
             state.loading = false;

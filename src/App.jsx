@@ -10,14 +10,12 @@ const lightTheme = {
     body: '#fff',
     text: '#333',
     buttonBackground: 'lightgray',
-    // ... other light theme styles
 };
 
 const darkTheme = {
     body: '#333',
     text: '#eee',
     buttonBackground: 'darkgray',
-    // ... other dark theme styles
 };
 
 const AppContainer = styled.div`
@@ -41,9 +39,6 @@ function App() {
     const handleThemeChange = () => {
         dispatch(toggleTheme());
     }
-
-
-
 
     return (
         <ThemeProvider theme={theme}>

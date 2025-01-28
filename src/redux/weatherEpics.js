@@ -155,9 +155,7 @@ export const fetchUserLocationEpic = (action$, state$) => {
                     catchError(error => {
                         console.log(error);
                         // Return an action to set the error state and setUserLocation to current location
-                        return of(setError(error), setUserLocation(user_location));
-
-
+                        return of(setError(error  ), setUserLocation(user_location));
                     })
                 );
             })

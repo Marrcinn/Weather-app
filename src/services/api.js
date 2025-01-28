@@ -8,10 +8,8 @@ const WEATHER_API_KEY = import.meta.env.VITE_API_KEY;
 
 
 const api = {
-    // fetchCities: fetch cities in bounds with nameFilter and populationFilter.
+    // fetchCities: fetch cities in bounds
     // bounds: object with southwest and northeast objects with lat and lng properties
-    // nameFilter: a beggining of the city name
-    // populationFilter: object with min and max properties
     // returns a promise with the cities
     fetchCities(bounds) {
         if (!bounds || !bounds.southwest || !bounds.northeast) {

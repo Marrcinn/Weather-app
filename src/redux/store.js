@@ -10,8 +10,8 @@ import {
     fetchUserLocationEpic,
     updateFilteredCitiesEpic,
 }
-    from './weatherEpics'; // Import your epics
-import {themeEpics} from './themeEpics'; // Import your theme epics
+    from './weatherEpics';
+import {themeEpics} from './themeEpics';
 
 const rootEpic = combineEpics(
     fetchCitiesEpic,
@@ -33,6 +33,6 @@ const store = configureStore({
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(epicMiddleware),
 });
 
-epicMiddleware.run(rootEpic); // Run the combined epics
+epicMiddleware.run(rootEpic);
 
 export default store;

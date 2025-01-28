@@ -22,7 +22,11 @@ const FilterPanel = () => {
   const dispatch = useDispatch();
   const availablePopulationRange = useSelector((state) => state.weather.availablePopulationRange);
   const [name, setName] = useState('');
+
+  // min and max values that are selected by the user
   const [populationRange] = useState({ min: 0, max: 10000000 });
+
+  // min and max values that will be bounds of the slider
   const [sliderValues, setSliderValues] = useState({min: 0, max: 10000000})
 
   const handleNameChange = (event) => {
@@ -34,7 +38,6 @@ const FilterPanel = () => {
     console.log(e);
     dispatch(setLoading(true));
     dispatch(setFilterPopulation({min: e.minValue, max: e.maxValue}));
-    return;
   });
 
   useEffect(() => {

@@ -1,13 +1,12 @@
-import React from 'react';
-import { PropagateLoader } from 'react-spinners'; // Or another spinner library
+import { PropagateLoader } from 'react-spinners'; // Import the spinner
 
 const LoadingSpinner = () => {
   return (
     <div style={{
-      position: 'absolute', // Position the spinner absolutely
+      position: 'absolute',
       top: '50%', // Center vertically
       left: '50%', // Center horizontally
-      transform: 'translate(-50%, -50%)', // Center precisely
+      transform: 'translate(-50%, -50%)',
       zIndex: 1000, // Ensure it's on top of the map
       display: 'flex',
       justifyContent: 'center',

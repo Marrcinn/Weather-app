@@ -13,7 +13,6 @@ import LoadingSpinner from './LoadingSpinner';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix for Leaflet marker icon issue
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -83,7 +82,8 @@ const MapComponent = () => {
             {loading && <LoadingSpinner />}
             {error &&
             <div style={{ display:'flex', flexDirection:"row"  }}>
-                <p style={{color: 'red'}}>{error}</p> <button onClick={() => dispatch(clearError())}>Clear error</button>
+                <p style={{color: 'red'}}>{error}</p>
+                <button onClick={() => dispatch(clearError())}>Clear error</button>
             </div>
             }
         </div>
