@@ -1,6 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit';
 import {combineEpics, createEpicMiddleware} from 'redux-observable';
-import weatherReducer from './weatherSlice'; // Import your slice
+import weatherReducer from './weatherSlice';
+import themeReducer from './themeSlice';
 import {
     fetchCitiesEpic,
     refreshWeatherEpic,
@@ -10,6 +11,7 @@ import {
     updateFilteredCitiesEpic,
 }
     from './weatherEpics'; // Import your epics
+import {themeEpics} from './themeEpics'; // Import your theme epics
 
 const rootEpic = combineEpics(
     fetchCitiesEpic,
@@ -17,14 +19,16 @@ const rootEpic = combineEpics(
     updateWeatherEpic,
     refreshWeatherEpic,
     fetchUserLocationEpic,
-    updateFilteredCitiesEpic
+    updateFilteredCitiesEpic,
+    ...themeEpics
 );
 
 const epicMiddleware = createEpicMiddleware();
 
 const store = configureStore({
     reducer: {
-        weather: weatherReducer, // Add your reducer here
+        weather: weatherReducer,
+        theme: themeReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(epicMiddleware),
 });
