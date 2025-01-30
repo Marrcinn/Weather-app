@@ -4,7 +4,7 @@ const OVERPASS_API_URL = "https://overpass.private.coffee/api/interpreter"
 const WEATHER_API_BASE_URL = "http://api.weatherapi.com/v1"
 
 
-const WEATHER_API_KEY = import.meta.env.WEATHER_API_KEY;
+const API_KEY_WEATHER = import.meta.env.VITE_WEATHER_API_KEY;
 
 
 const api = {
@@ -12,6 +12,7 @@ const api = {
     // bounds: object with southwest and northeast objects with lat and lng properties
     // returns a promise with the cities
     fetchCities(bounds) {
+        console.log(API_KEY_WEATHER);
         if (!bounds || !bounds.southwest || !bounds.northeast) {
             return Promise.reject(new Error('Invalid bounds'))
         }
@@ -48,12 +49,13 @@ const api = {
     },
     // For a given city (object with .lat and .lon properties), fetch the current weather
     fetchWeather(city) {
+        console.log(API_KEY_WEATHER)
         if (!city || !city.lat || !city.lon) {
             return Promise.reject(new Error('Invalid city data'));
         }
         const params = {
             q: `${city.lat},${city.lon}`,
-            key: WEATHER_API_KEY,
+            key:API_KEY_WEATHER,
         };
 
         return axios.get(WEATHER_API_BASE_URL + "/current.json", {params})
