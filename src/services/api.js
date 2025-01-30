@@ -4,7 +4,7 @@ const OVERPASS_API_URL = "https://overpass.private.coffee/api/interpreter"
 const WEATHER_API_BASE_URL = "http://api.weatherapi.com/v1"
 
 
-const WEATHER_API_KEY = import.meta.env.VITE_API_KEY;
+const WEATHER_API_KEY = import.meta.env.WEATHER_API_KEY;
 
 
 const api = {
