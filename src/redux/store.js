@@ -4,11 +4,11 @@ import weatherReducer from './weatherSlice';
 import themeReducer from './themeSlice';
 import {
     fetchCitiesEpic,
-    refreshWeatherEpic,
+    setVisibleCitiesEpic,
     updateTopCitiesAndFiltersEpic,
-    updateWeatherEpic,
-    fetchUserLocationEpic,
-    updateFilteredCitiesEpic,
+    refreshWeatherEpic,
+    updateUserLocationEpic,
+
 }
     from './weatherEpics';
 import {themeEpics} from './themeEpics';
@@ -16,10 +16,9 @@ import {themeEpics} from './themeEpics';
 const rootEpic = combineEpics(
     fetchCitiesEpic,
     updateTopCitiesAndFiltersEpic,
-    updateWeatherEpic,
     refreshWeatherEpic,
-    fetchUserLocationEpic,
-    updateFilteredCitiesEpic,
+    setVisibleCitiesEpic,
+    updateUserLocationEpic,
     ...themeEpics
 );
 

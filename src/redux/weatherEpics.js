@@ -5,18 +5,18 @@ import {
     setError,
     setLoading,
     setCities,
-    setTopCitiesWithFilters,
-    setUserLocation,
+    setVisibleCities,
     setFilterPopulation,
-    setCitiesWithWeather,
+    setAvailablePopulationRange,
+    setTopCitiesWithFilters,
+    updateCityWeather, fetchUserLocation, setUserLocation,
 } from './weatherSlice';
 import api from '../services/api';
 
 const SET_MAP_BOUNDS = 'weather/setMapBounds'; // Use the action type string
-const SET_TOP_CITIES_WITH_FILTER = 'weather/setTopCitiesWithFilters';
 const SET_CITIES = 'weather/setCities';
+const SET_VISIBLE_CITIES = 'weather/setVisibleCities';
 const SET_FILTER_NAME = 'weather/setFilterName';
-const FETCH_USER_LOCATION = 'weather/fetchUserLocation';
 const SET_FILTER_POPULATION = 'weather/setFilterPopulation';
 
 export const fetchCitiesEpic = (action$, state$) => {
@@ -24,13 +24,53 @@ export const fetchCitiesEpic = (action$, state$) => {
         ofType(SET_MAP_BOUNDS),
         debounceTime(1000),
         switchMap(() => {
-            const {mapBounds} = state$.value.weather;
+            const {mapBounds, cities} = state$.value.weather;
             if (!mapBounds || !mapBounds.southwest || !mapBounds.northeast) {
                 return of(setLoading(false));
             }
             return from(api.fetchCities(mapBounds)).pipe(
-                map((cities) => setCities(cities)),
-                catchError(error => of(setError(error.message)))
+                map((fetched_cities) => {
+                    let mergedCities = cities ? [...cities] : [];
+                    for (let new_city of fetched_cities){
+                        if (!mergedCities.find(city => city.id === new_city.id)){
+                            console.log(new_city)
+                            // Add it with weather attribute set to null
+                            mergedCities.push(new_city);
+                        }
+                    }
+                    return setCities(mergedCities);
+                }),
+                catchError(error => of(setError(error)))
+            );
+        })
+    );
+}
+
+export const setVisibleCitiesEpic = (action$, state$) => {
+    return action$.pipe(
+        ofType(SET_CITIES),
+        debounceTime(1000),
+        switchMap(() => {
+            const {cities, mapBounds} = state$.value.weather;
+            console.log("Set visible cities;");
+            if (!cities || cities.length === 0) {
+                return of(setLoading(false));
+            }
+            let visibleCities = cities;
+            if (mapBounds && mapBounds.southwest && mapBounds.northeast) {
+                visibleCities = cities.filter(city =>
+                    city.lat >= mapBounds.southwest.lat &&
+                    city.lat <= mapBounds.northeast.lat &&
+                    city.lon >= mapBounds.southwest.lng &&
+                    city.lon <= mapBounds.northeast.lng);
+            }
+            // Adjust the filterPopulation and availablePopulationRange to the new visible cities
+            const minPopulation = visibleCities.length > 0 ? Math.min(...visibleCities.map(city => city.population)) : 0;
+            const maxPopulation = visibleCities.length > 0 ? Math.max(...visibleCities.map(city => city.population)) : 50000000;
+            return merge(
+                of(setVisibleCities(visibleCities)),
+                of(setFilterPopulation({min: minPopulation, max: maxPopulation})),
+                of(setAvailablePopulationRange({min: minPopulation, max: maxPopulation}))
             );
         })
     );
@@ -38,90 +78,46 @@ export const fetchCitiesEpic = (action$, state$) => {
 
 export const updateTopCitiesAndFiltersEpic = (action$, state$) => {
     return action$.pipe(
-        ofType(SET_CITIES, SET_FILTER_NAME),
+        ofType(SET_VISIBLE_CITIES, SET_FILTER_NAME, SET_FILTER_POPULATION),
         debounceTime(1000),
         switchMap(() => {
-            const {cities, filterName} = state$.value.weather;
-            if (!cities || cities.length === 0) {
-                return of(setLoading(false));
+            const {visibleCities, filterName, filterPopulation, cities} = state$.value.weather;
+            if (!visibleCities || visibleCities.length === 0) {
+                return merge(
+                    of(setTopCitiesWithFilters([])),
+                    of(setLoading(false)),
+                );
             }
-            let nameFilteredCities = cities;
-            if (filterName) {
-                nameFilteredCities = nameFilteredCities.filter(city => city.name.toLowerCase().startsWith(filterName.toLowerCase()));
-            }
-            // Update filterPopulation with the min and max population of the top cities
-            const minPopulation = nameFilteredCities.length > 0 ? Math.min(...nameFilteredCities.map(city => city.population)) : 0;
-            const maxPopulation = nameFilteredCities.length > 0 ? Math.max(...nameFilteredCities.map(city => city.population)) : 0;
-            const filterPopulation = {min: minPopulation, max: maxPopulation};
-            return merge(of(setFilterPopulation(filterPopulation)));
-        })
-    );
-
-};
-
-export const updateFilteredCitiesEpic = (action$, state$) => {
-    return action$.pipe(
-        ofType(SET_FILTER_POPULATION),
-        debounceTime(1000),
-        switchMap(() => {
-            const {cities, filterPopulation, mapBounds, filterName} = state$.value.weather;
-            if (!cities || cities.length === 0) {
-                return of(setLoading(false));
-            }
-            let topCities = cities;
+            let topCities = visibleCities;
             if (filterName) {
                 topCities = topCities.filter(city => city.name.toLowerCase().startsWith(filterName.toLowerCase()));
-            }
-            if (mapBounds && mapBounds.southwest && mapBounds.northeast) {
-                topCities = topCities.filter(city => city.lat >= mapBounds.southwest.lat &&
-                    city.lat <= mapBounds.northeast.lat &&
-                    city.lon >= mapBounds.southwest.lng &&
-                    city.lon <= mapBounds.northeast.lng);
             }
             // Filter by population
             console.log("Filtering by population", filterPopulation);
             topCities = topCities.filter(city => city.population >= filterPopulation.min && city.population <= filterPopulation.max);
             // Sort and slice
             topCities = topCities.sort((a, b) => b.population - a.population).slice(0, 20);
-            console.log("Top cities with filters", topCities);
+            // Fetch weather for the top cities
+            const weatherPromises = topCities.map(city => api.fetchWeather(city));
 
-            return of(setTopCitiesWithFilters(topCities));
-        })
-    );
-}
-
-// Get weather for the top cities. If the city already has weather, skip it.
-export const updateWeatherEpic = (action$, state$) => {
-    return action$.pipe(
-        ofType(SET_TOP_CITIES_WITH_FILTER),
-        debounceTime(1000),
-        switchMap(() => {
-            const {topCities} = state$.value.weather;
-            if (!topCities || topCities.length === 0) {
-                return of(setLoading(false));
-            }
-            const weatherPromises = topCities.map(city => {
-                if (!city.weather) {
-                    console.log("Fetching weather for city", city);
-                    return api.fetchWeather(city).then(weather => ({
-                        ...city,
-                        weather
-                    }));
-                } else {
-                    return Promise.resolve(city);
-                }
-            });
-
-            return from(Promise.all(weatherPromises)).pipe(
-                map(citiesWithWeather => setCitiesWithWeather(citiesWithWeather)),
+            return merge(from(Promise.all(weatherPromises)).pipe(
+                map((weathers) => {
+                    return setTopCitiesWithFilters(topCities.map((city, index) => ({...city, weather: weathers[index]})));
+                }),
                 catchError(error => of(setError(error.message)))
-            );
+            ),
+                of(setLoading(false)),
+                // Using updateCityWeather to update the weather of the cities in the cities array
+                of(...topCities.map(city => updateCityWeather(city)))
+                );
         })
     );
 };
 
 export const refreshWeatherEpic = (action$, state$) => {
-    return interval(60 * 60 * 1000).pipe(
+    const refresh_time = 60 * 60 * 1000; // 1 hour (for production)
+    // const refresh_time = 30 * 1000; // 30 seconds (for testing)
+    return interval(refresh_time).pipe(
         startWith(0),
         map(() => {
             const {cities} = state$.value.weather;
@@ -132,34 +128,21 @@ export const refreshWeatherEpic = (action$, state$) => {
         })
     );
 }
+export const updateUserLocationEpic = (action$) => { // No need for state$ unless you use it
+    const refreshTime = 5000; // Consistent naming
 
+    return interval(refreshTime).pipe(
+        switchMap(() => { // Use switchMap to cancel previous requests
 
-export const fetchUserLocationEpic = (action$, state$) => {
-    return action$
-        .pipe(
-            ofType(FETCH_USER_LOCATION),
-            startWith(0),
-            switchMap(() => {
-                const {mapBounds} = state$.value.weather;
-                let user_location =null
-                if (!mapBounds || !mapBounds.southwest || !mapBounds.northeast) {
-                    user_location = {lat: 52.2, lng: 21};
-                }
-                else{
-                    user_location = {
-                        lat: (mapBounds.southwest.lat + mapBounds.northeast.lat) / 2,
-                        lng: (mapBounds.southwest.lng+ mapBounds.northeast.lng) / 2};
-                }
-                return from(api.fetchUserLocation()).pipe(
-                    map((location) => setUserLocation(location)),
-                    catchError(error => {
-                        console.log(error);
-                        // Return an action to set the error state and setUserLocation to current location
-                        return of(setError(error  ), setUserLocation(user_location));
-                    })
-                );
-            })
-        );
+            return from(api.fetchUserLocation()).pipe(
+                map((location) => setUserLocation(location)),
+                catchError(error => {
+                    console.log(error);
+                    // Return an action to set the error state and setUserLocation to current location
+                    return of(setError(error  ));
+                })
+            );
+
+        })
+    );
 };
-
-

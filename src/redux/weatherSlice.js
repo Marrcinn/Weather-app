@@ -1,10 +1,14 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
-    // Cities are all the cities fetched from the API so far. City has attributes id, name, lat, lon, population, weather.
+    // cities: all the cities fetched from the API so far. City has attributes id, name, lat, lon, population, weather.
     // weather starts out as null and is updated when the weather is fetched.
     cities: [],
-    // Top cities are top 20 cities based on the filters.
+
+    // visibleCities: a list of all cities that are in current mapBounds
+    visibleCities: [],
+
+    // topCities: top 20 cities based on the filters.
     topCities: [],
     // Loading is a boolean to indicate if the app is currently loading data.
     loading: false,
@@ -13,13 +17,14 @@ const initialState = {
     // Filter name is a string to filter cities by name (they must start with the filter name (case insensitive)).
     filterName: '',
     // Filter population is an object with min and max properties to filter cities by
-    filterPopulation: {min: 0, max: 10000000}, // Initialize max to null
+    filterPopulation: {min: 0, max: 50000000},
     // availablePopulationRange is the range the slider should be from/to
-    availablePopulationRange: {min: 0, max: 10000000}, // Initialize max to null
+    availablePopulationRange: {min: 0, max: 50000000},
     // User location is an object with lat and lng properties to center the map on the user's location.
     // The map will center to user's location unless it is null
     userLocation: null,
-    theme: 'light', // Default theme
+
+    requestedMapLocation: null,
     // An error object to store any errors during API calls
     error: null, // To store any errors during API calls
 };
@@ -30,38 +35,33 @@ const weatherSlice = createSlice({
     reducers: {
         setCities: (state, action) => {
             console.log("Set cities");
-            for (let city of action.payload) {
-                let existingCity = state.cities.find(c => c.id === city.id);
-                if (!existingCity) {
-                    state.cities.push(city);
-                }
-            }
-            const min_population = Math.min(...state.cities.map(city => city.population));
-            const max_population = Math.max(...state.cities.map(city => city.population));
-            state.availablePopulationRange = {min: min_population, max: max_population};
+            state.cities = action.payload;
         },
+
+        setVisibleCities: (state, action) => {
+            console.log("Set visible cities " + action.payload);
+            state.visibleCities = action.payload;
+        },
+        updateCityWeather: (state, action) => {
+            const city = action.payload;
+            state.cities.map((c) => {
+                if (c.id === city.id) {
+                    c.weather = city.weather;
+                }
+                return c;
+            });
+        },
+
         // Set the top cities with filters
         setTopCitiesWithFilters: (state, action) => {
             console.log("Set top cities with filters");
             state.topCities = action.payload;
         },
-        // Set the Top cities with weather.
-        setCitiesWithWeather: (state, action) => {
-            console.log("Set weather for the city");
-            for (let city of action.payload) {
-                let existingCity = state.cities.find(c => c.id === city.id);
-                if (existingCity) {
-                    existingCity.weather = city.weather;
-                }
-            }
-            state.topCities = action.payload;
-            state.loading = false;
-        },
+
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
         setMapBounds: (state, action) => {
-            state.userLocation = null;
             console.log("Set map bounds");
             state.mapBounds = action.payload;
         },
@@ -73,29 +73,34 @@ const weatherSlice = createSlice({
             console.log("Set filter population", action.payload);
             state.filterPopulation = action.payload;
         },
+        setAvailablePopulationRange: (state, action) => {
+            console.log("Set available population range");
+            state.availablePopulationRange = action.payload;
+        },
         fetchUserLocation: (state) => {
             console.log("Fetch user location");
             state.loading = true;
         },
         setUserLocation: (state, action) => {
             console.log("Set user location");
-            console.log(action.payload);
             state.userLocation = action.payload;
-        },
-        deleteUserLocation: (state) => {
-            console.log("Delete user location");
-            state.userLocation = null;
-            state.loading = false;
         },
 
         setError: (state, action) => {
-            console.log("Set error", action.payload);
+            console.error("Set error", action.payload);
+            console.log("Erro error");
             state.loading = false;
-            state.error = action.payload;
+            state.error = action.payload.message;
         },
         clearError: (state) => {
-           console.log("clear Error");
-           state.error = null;
+            state.error = null;
+        },
+        setMapToUserLocation: (state) => {
+            // set state.requestedMapLocation to state.userLocation
+            state.requestedMapLocation = state.userLocation;
+        },
+        clearRequestedMapLocation: (state) => {
+            state.requestedMapLocation = null;
         }
     },
 });
@@ -109,10 +114,13 @@ export const {
     setFilterPopulation,
     setUserLocation,
     setError,
-    setCitiesWithWeather,
     fetchUserLocation,
-    deleteUserLocation,
     clearError,
+    setVisibleCities,
+    setAvailablePopulationRange,
+    updateCityWeather,
+    setMapToUserLocation,
+    clearRequestedMapLocation
 } = weatherSlice.actions;
 
 export default weatherSlice.reducer;

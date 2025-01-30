@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { fetchUserLocation } from '../redux/weatherSlice';
+import { setMapToUserLocation } from '../redux/weatherSlice';
 
 const CenteringButton = styled.button`
   padding: 10px 15px;
@@ -24,7 +24,7 @@ const CenterToLocationButton = () => {
     const dispatch = useDispatch();
 
     const handleCenterClick = () => {
-        dispatch(fetchUserLocation());
+        dispatch(setMapToUserLocation());
     };
 
     return (

@@ -4,9 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     setMapBounds,
     setLoading,
-    fetchUserLocation,
-    deleteUserLocation,
-    clearError
+    clearError, clearRequestedMapLocation
 } from '../redux/weatherSlice';
 import WeatherMarker from './WeatherMarker';
 import LoadingSpinner from './LoadingSpinner';
@@ -25,18 +23,24 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const MapComponent = () => {
     const dispatch = useDispatch();
-    const { topCities, loading, userLocation, error } = useSelector((state) => state.weather);
+    const {
+        topCities,
+        loading,
+        error
+    } = useSelector((state) => state.weather);
+    const requestedMapLocation = useSelector((state)=>state.weather.requestedMapLocation)
     const [mapCenter] = useState([52.2, 21]);
 
     function MapEvents() {
         const map = useMap();
 
         useEffect(() => {
-            if (userLocation) {
-                map.setView([userLocation.lat, userLocation.lng], map.getZoom());
-                dispatch(deleteUserLocation());
+            if (requestedMapLocation) {
+                console.log(requestedMapLocation);
+                map.setView([requestedMapLocation.lat, requestedMapLocation.lng], map.getZoom());
+                dispatch(clearRequestedMapLocation());
             }
-        }, [userLocation, map, dispatch]);
+        }, [map, dispatch]),
 
         useEffect(() => {
             const handleMoveEnd = () => {
@@ -62,10 +66,6 @@ const MapComponent = () => {
 
         return null;
     }
-
-    useEffect(() => {
-        dispatch(fetchUserLocation());
-    }, [dispatch]);
 
     return (
         <div style={{ height: '550px', width: '100%' }}> {/* Set map dimensions */}
