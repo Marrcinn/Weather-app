@@ -24,10 +24,10 @@ const FilterPanel = () => {
   const [name, setName] = useState('');
 
   // min and max values that are selected by the user
-  const [populationRange] = useState({ min: 0, max: 10000000 });
+  const [populationRange] = useState({ min: 0, max: 50000000 });
 
   // min and max values that will be bounds of the slider
-  const [sliderValues, setSliderValues] = useState({min: 0, max: 10000000})
+  const [sliderValues, setSliderValues] = useState({min: 0, max: 50000000})
 
   const handleNameChange = (event) => {
     setName(event.target.value);

@@ -128,7 +128,7 @@ export const refreshWeatherEpic = (action$, state$) => {
         })
     );
 }
-export const updateUserLocationEpic = (action$) => { // No need for state$ unless you use it
+export const updateUserLocationEpic = () => {
     const refreshTime = 5000; // Consistent naming
 
     return interval(refreshTime).pipe(
@@ -139,7 +139,7 @@ export const updateUserLocationEpic = (action$) => { // No need for state$ unles
                 catchError(error => {
                     console.log(error);
                     // Return an action to set the error state and setUserLocation to current location
-                    return of(setError(error  ));
+                    return of(setUserLocation({error: error}));
                 })
             );
 

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     setMapBounds,
     setLoading,
-    clearError, clearRequestedMapLocation
+    clearError, clearRequestedMapLocation, setError
 } from '../redux/weatherSlice';
 import WeatherMarker from './WeatherMarker';
 import LoadingSpinner from './LoadingSpinner';
@@ -26,7 +26,6 @@ const MapComponent = () => {
     const {
         topCities,
         loading,
-        error
     } = useSelector((state) => state.weather);
     const requestedMapLocation = useSelector((state)=>state.weather.requestedMapLocation)
     const [mapCenter] = useState([52.2, 21]);
@@ -36,11 +35,16 @@ const MapComponent = () => {
 
         useEffect(() => {
             if (requestedMapLocation) {
+                if (requestedMapLocation.error !== undefined) {
+                    dispatch(setError({ message: requestedMapLocation.error }));
+                    dispatch(clearRequestedMapLocation());
+                    return;
+                }
                 console.log(requestedMapLocation);
                 map.setView([requestedMapLocation.lat, requestedMapLocation.lng], map.getZoom());
                 dispatch(clearRequestedMapLocation());
             }
-        }, [map, dispatch]),
+        }, [map, requestedMapLocation]),
 
         useEffect(() => {
             const handleMoveEnd = () => {
@@ -80,12 +84,7 @@ const MapComponent = () => {
                 ))}
             </MapContainer>
             {loading && <LoadingSpinner />}
-            {error &&
-            <div style={{ display:'flex', flexDirection:"row"  }}>
-                <p style={{color: 'red'}}>{error}</p>
-                <button onClick={() => dispatch(clearError())}>Clear error</button>
-            </div>
-            }
+
         </div>
     );
 };

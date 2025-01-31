@@ -96,7 +96,6 @@ const weatherSlice = createSlice({
             state.error = null;
         },
         setMapToUserLocation: (state) => {
-            // set state.requestedMapLocation to state.userLocation
             state.requestedMapLocation = state.userLocation;
         },
         clearRequestedMapLocation: (state) => {

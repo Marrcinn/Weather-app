@@ -92,8 +92,7 @@ const api = {
 					});
 				},
 				error => {
-                    console.log(error.code);
-                    if (error.code == 1) {
+                    if (error.code === 1) {
                         reject('User denied geolocation permission');
                         return;
                     }
