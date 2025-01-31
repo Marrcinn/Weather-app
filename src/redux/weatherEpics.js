@@ -9,7 +9,8 @@ import {
     setFilterPopulation,
     setAvailablePopulationRange,
     setTopCitiesWithFilters,
-    updateCityWeather, fetchUserLocation, setUserLocation,
+    updateCityWeather,
+    setUserLocation,
 } from './weatherSlice';
 import api from '../services/api';
 
@@ -33,7 +34,6 @@ export const fetchCitiesEpic = (action$, state$) => {
                     let mergedCities = cities ? [...cities] : [];
                     for (let new_city of fetched_cities){
                         if (!mergedCities.find(city => city.id === new_city.id)){
-                            console.log(new_city)
                             // Add it with weather attribute set to null
                             mergedCities.push(new_city);
                         }
@@ -52,7 +52,6 @@ export const setVisibleCitiesEpic = (action$, state$) => {
         debounceTime(1000),
         switchMap(() => {
             const {cities, mapBounds} = state$.value.weather;
-            console.log("Set visible cities;");
             if (!cities || cities.length === 0) {
                 return of(setLoading(false));
             }
@@ -93,7 +92,6 @@ export const updateTopCitiesAndFiltersEpic = (action$, state$) => {
                 topCities = topCities.filter(city => city.name.toLowerCase().startsWith(filterName.toLowerCase()));
             }
             // Filter by population
-            console.log("Filtering by population", filterPopulation);
             topCities = topCities.filter(city => city.population >= filterPopulation.min && city.population <= filterPopulation.max);
             // Sort and slice
             topCities = topCities.sort((a, b) => b.population - a.population).slice(0, 20);
@@ -137,7 +135,6 @@ export const updateUserLocationEpic = () => {
             return from(api.fetchUserLocation()).pipe(
                 map((location) => setUserLocation(location)),
                 catchError(error => {
-                    console.log(error);
                     // Return an action to set the error state and setUserLocation to current location
                     return of(setUserLocation({error: error}));
                 })

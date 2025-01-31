@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     setMapBounds,
     setLoading,
-    clearError, clearRequestedMapLocation, setError
+    clearRequestedMapLocation,
+    setError
 } from '../redux/weatherSlice';
 import WeatherMarker from './WeatherMarker';
 import LoadingSpinner from './LoadingSpinner';
@@ -40,7 +41,6 @@ const MapComponent = () => {
                     dispatch(clearRequestedMapLocation());
                     return;
                 }
-                console.log(requestedMapLocation);
                 map.setView([requestedMapLocation.lat, requestedMapLocation.lng], map.getZoom());
                 dispatch(clearRequestedMapLocation());
             }

@@ -34,12 +34,10 @@ const weatherSlice = createSlice({
     initialState,
     reducers: {
         setCities: (state, action) => {
-            console.log("Set cities");
             state.cities = action.payload;
         },
 
         setVisibleCities: (state, action) => {
-            console.log("Set visible cities " + action.payload);
             state.visibleCities = action.payload;
         },
         updateCityWeather: (state, action) => {
@@ -54,7 +52,6 @@ const weatherSlice = createSlice({
 
         // Set the top cities with filters
         setTopCitiesWithFilters: (state, action) => {
-            console.log("Set top cities with filters");
             state.topCities = action.payload;
         },
 
@@ -62,33 +59,25 @@ const weatherSlice = createSlice({
             state.loading = action.payload;
         },
         setMapBounds: (state, action) => {
-            console.log("Set map bounds");
             state.mapBounds = action.payload;
         },
         setFilterName: (state, action) => {
-            console.log("Set filter name");
             state.filterName = action.payload;
         },
         setFilterPopulation: (state, action) => {
-            console.log("Set filter population", action.payload);
             state.filterPopulation = action.payload;
         },
         setAvailablePopulationRange: (state, action) => {
-            console.log("Set available population range");
             state.availablePopulationRange = action.payload;
         },
         fetchUserLocation: (state) => {
-            console.log("Fetch user location");
             state.loading = true;
         },
         setUserLocation: (state, action) => {
-            console.log("Set user location");
             state.userLocation = action.payload;
         },
 
         setError: (state, action) => {
-            console.error("Set error", action.payload);
-            console.log("Erro error");
             state.loading = false;
             state.error = action.payload.message;
         },

@@ -35,7 +35,6 @@ const FilterPanel = () => {
 
 
   const handleSliderInput = ((e) => {
-    console.log(e);
     dispatch(setLoading(true));
     dispatch(setFilterPopulation({min: e.minValue, max: e.maxValue}));
   });
@@ -50,7 +49,6 @@ const FilterPanel = () => {
 
 
   useEffect(() => {
-    console.log("Setting available population range", availablePopulationRange);
     if (availablePopulationRange) {
       // Round min to the lower 5000 and max to the higher 5000
       let min = Math.floor(availablePopulationRange.min / 5000) * 5000;

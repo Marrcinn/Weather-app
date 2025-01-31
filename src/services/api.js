@@ -12,7 +12,6 @@ const api = {
     // bounds: object with southwest and northeast objects with lat and lng properties
     // returns a promise with the cities
     fetchCities(bounds) {
-        console.log(API_KEY_WEATHER);
         if (!bounds || !bounds.southwest || !bounds.northeast) {
             return Promise.reject(new Error('Invalid bounds'))
         }
@@ -25,7 +24,6 @@ const api = {
 			);
 			out center;
 		`;
-        console.log(overpassQuery);
         return axios.post(OVERPASS_API_URL, `data=${encodeURIComponent(overpassQuery)}`)
             .then(response => {
                 if (!response.data || !response.data.elements) {
@@ -43,13 +41,11 @@ const api = {
 
             })
             .catch(error => {
-                console.error('Error fetching cities', error);
                 throw error;
             });
     },
     // For a given city (object with .lat and .lon properties), fetch the current weather
     fetchWeather(city) {
-        console.log(API_KEY_WEATHER)
         if (!city || !city.lat || !city.lon) {
             return Promise.reject(new Error('Invalid city data'));
         }
@@ -63,11 +59,9 @@ const api = {
                 if (!response.data) {
                     throw new Error('Invalid response');
                 }
-                console.log(response.data);
                 return response.data;
             })
             .catch(error => {
-                console.error('Error fetching weather', error);
                 throw error;
             });
 
@@ -96,7 +90,6 @@ const api = {
                         reject('User denied geolocation permission');
                         return;
                     }
-                    console.error('Error getting user location', error);
 					resolve(default_warsaw);
 				}
 			);
