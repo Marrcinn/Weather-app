@@ -5,6 +5,7 @@ import CenterToLocationButton from "./components/CenterToLocationButton.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {toggleTheme} from "./redux/themeSlice.js";
 import styled, {ThemeProvider} from "styled-components";
+import ErrorComponent from "./components/ErrorComponent.jsx";
 
 const lightTheme = {
     body: '#fff',
@@ -47,6 +48,7 @@ function App() {
                 <FilterPanel/>
                 <CenterToLocationButton />
                 <button onClick={handleThemeChange}>Change Theme</button>
+                <ErrorComponent/>
             </AppContainer>
         </ThemeProvider>
     )
